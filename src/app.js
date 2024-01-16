@@ -1,6 +1,6 @@
 import express from 'express'
-import { dbConnection } from './database/database.js'
-import { config } from './config/config.js'
+import { dbConnection } from './utils/database.js'
+import { config } from './utils/config.js'
 import auth from './modules/auth/route.js'
 import account from './modules/account/route.js'
 import transaction from './modules/transaction/route.js'
