@@ -6,7 +6,7 @@ export function dbConnection(dbUrl) {
     const db = mongoose.connection
 
     db.on('error', (err) => {
-        console.log(`Datbase connection failed due to ${err}`)
+        console.log(`Database connection failed due to ${err}`)
     })
 
     db.once('open', async() => {
@@ -17,10 +17,4 @@ export function dbConnection(dbUrl) {
         console.log(`Database disconnected ${err}`)
     })
 
-    process.on('SIGINT', () => {
-        db.close(() => {
-            console.log('Database connection closed due to app termination')
-        })
-        process.exit(1)
-    })
 }

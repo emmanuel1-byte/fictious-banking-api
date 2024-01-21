@@ -8,6 +8,63 @@ import transactionEvent from "../../events/transaction/emitter.js"
  * @param {Object} res - Express response object.
  * @returns {Object} JSON response indicating success or error.
  */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Transfer:
+ *       type: object
+ *       properties:
+ *         accountName:
+ *           type: string
+ *         accountNumber:
+ *           type: string
+ *         amount:
+ *           type: integer
+ *       required:
+ *         - accountName
+ *         - accountNumber
+ *         - amount
+*/
+
+/**
+ * @openapi
+ * /api/transfer:
+ *   post:
+ *     summary: Make a transfer
+ *     description: Endpoint to transfer funds.
+ *     tags: [Transactions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Transfer'
+ *     responses:
+ *       201:
+ *         description: Transfer successful
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Transfer successful
+ *               data:
+ *                 transfer: { Your transfer data here }
+ *       400:
+ *         description: Bad Request. Invalid input.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Validation failed. Please check your input.
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ *     security:
+ *       - bearerAuth: []
+ */
 export const transfer = async function (req, res) {
     try {
         const validationResult = transferSchema.validate(req.body)
@@ -27,6 +84,60 @@ export const transfer = async function (req, res) {
  * @param {Object} res - Express response object.
  * @returns {Object} JSON response indicating success or error.
  */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Deposit:
+ *       type: object
+ *       properties:
+ *         accountNumber:
+ *           type: integer
+ *         amount:
+ *           type: integer
+ *       required:
+ *         - accountNumber
+ *         - amount
+*/
+
+/**
+ * @openapi
+ * /api/deposit:
+ *   post:
+ *     summary: Make a deposit
+ *     description: Endpoint to deposit funds.
+ *     tags: [Transactions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Deposit'
+ *     responses:
+ *       201:
+ *         description: Deposit successful
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Deposit successful
+ *               data:
+ *                 deposit: { Your deposit data here }
+ *       400:
+ *         description: Bad Request. Invalid input.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Validation failed. Please check your input.
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ *     security:
+ *       - bearerAuth: []
+ */
 export const deposit = async function (req, res) {
     try {
         const validationResult = depositSchema.validate(req.body)
@@ -35,7 +146,7 @@ export const deposit = async function (req, res) {
         if (!makedeposit) return res.status(500).json({ message: 'Deposit failed' })
         const account = await repository.checkBalance(req.user?.sub)
         transactionEvent.emit('depositEmail', makedeposit, req.user?.email, account.balance)
-        return res.status(201).json({ message: "Deposit succesfull", data: { transfer: makedeposit } })
+        return res.status(201).json({ message: "Deposit succesfull", data: { deposit: makedeposit } })
     } catch (err) {
         return res.status(500).json({ message: err.message || "Internal Server Error" })
     }
@@ -46,6 +157,60 @@ export const deposit = async function (req, res) {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @returns {Object} JSON response indicating success or error.
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Withdrawal:
+ *       type: object
+ *       properties:
+ *         accountNumber:
+ *           type: string
+ *         amount:
+ *           type: integer
+ *       required:
+ *         - accountNumber
+ *         - amount
+*/
+
+/**
+ * @openapi
+ * /api/withdraw:
+ *   post:
+ *     summary: Make a withdrawal
+ *     description: Endpoint to withdraw funds.
+ *     tags: [Transactions]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Withdrawal'
+ *     responses:
+ *       201:
+ *         description: Withdrawal successful
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Withdrawal successful
+ *               data:
+ *                 withdrawal: { Your withdrawal data here }
+ *       400:
+ *         description: Bad Request. Invalid input.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Validation failed. Please check your input.
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ *     security:
+ *       - bearerAuth: []
  */
 export const withdraw = async function (req, res) {
     try {
@@ -66,6 +231,33 @@ export const withdraw = async function (req, res) {
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @returns {Object} JSON response indicating success or error.
+ */
+
+
+/**
+ * @openapi
+ * /api/balance:
+ *   get:
+ *     summary: Get account balance
+ *     description: Endpoint to retrieve account balance.
+ *     tags: [Transactions]
+ *     responses:
+ *       200:
+ *         description: Balance retrieved successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Balance retrieved successfully
+ *               data:
+ *                 account: { Your account balance data here  }
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Internal Server Error
+ *     security:
+ *       - bearerAuth: []
  */
 export const accountBalance = async function (req, res) {
     try {

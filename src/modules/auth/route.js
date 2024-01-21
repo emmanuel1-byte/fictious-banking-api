@@ -37,8 +37,8 @@ authModule.post('/logout', logout)
  * Handles verify request.
  *
  * @function
- * @name transfer
- * @memberof account.post('/transfer')
+ * @name emailVerification
+ * @memberof authModule.get('/verify/:token')
  */
 authModule.get('/verify/:token', emailVerification)
 

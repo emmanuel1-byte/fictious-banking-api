@@ -5,15 +5,67 @@ import authEvent from "../../events/auth/emitter.js"
 
 /**
  * Handles user registration.
- *
- * @async
- * @function register
+ * 
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} A Promise representing the completion of the registration process.
  * 
  *  
  * @throws {Object} - Returns a 500 status with an error message if an error occurs.
+ */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Registration:
+ *       type: object
+ *       properties:
+ *         full_name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         phone_number:
+ *           type: string
+ *         password:
+ *           type: string
+ *       required:
+ *         - full_name
+ *         - email
+ *         - phone_number
+ *         - password
+
+ * /api/register:
+ *   post:
+ *     summary: Register a new user
+ *     description: Endpoint to register a new user.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Registration'
+ *     responses:
+ *       201:
+ *         description: Registration successful. Check your email!
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Registration successful. Check your email!"
+ *       400:
+ *         description: Bad Request. Invalid input.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Validation failed. Please check your input."
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal Server Error"
  */
 export const register = async function (req, res) {
     try {
@@ -32,6 +84,7 @@ export const register = async function (req, res) {
 
 /**
  * Logs in a user.
+ * 
  * @param {import('express').Request} req - The request object.
  * @param {import('express').Response} res - The response object.
  * @returns {Promise<void>} A Promise representing the asynchronous operation.
@@ -39,10 +92,65 @@ export const register = async function (req, res) {
  *  
  * @throws {Object} - Returns a 500 status with an error message if an error occurs.
  */
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Login:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *       required:
+ *         - email
+ *         - password
+ */
+
+/**
+ * @openapi
+ * /api/login:
+ *   post:
+ *     summary: User login
+ *     description: Endpoint to authenticate a user.
+ *     tags:
+ *       - Authentication
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Login'
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Login successful"
+ *               data:
+ *                 token: "your_access_token"
+ *                 user: {
+ *                   // user object details
+ *                 }
+ *       400:
+ *         description: Bad Request. Invalid input or incorrect username/password.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Incorrect username and password"
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal Server Error"
+ */
 export const login = async function (req, res) {
     try {
         const validationResult = signInSchema.validate(req.body)
-        console.log(validationResult.value)
         if (validationResult.error) return res.status(400).json({ message: validationResult.error.details[0]?.message })
         const user = await repository.findByEmail(validationResult.value.email)
         if (!user || !await bcrypt.compare(validationResult.value.password, user.password)) return res.status(400).json({ message: 'Incorrect username and password' })
@@ -56,6 +164,16 @@ export const login = async function (req, res) {
     }
 }
 
+/**
+ * verify email token.
+ * 
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
+ * @returns {Promise<void>} A Promise representing the asynchronous operation.
+ * 
+ *  
+ * @throws {Object} - Returns a 500 status with an error message if an error occurs.
+ */
 export const emailVerification = async function (req, res) {
     try {
         const token = req.params.token
@@ -72,6 +190,7 @@ export const emailVerification = async function (req, res) {
 
 /**
  * Logs out a user.
+ * 
  * @param {import('express').Request} req - The request object.
  * @param {import('express').Response} res - The response object.
  * @returns {Promise<void>} A Promise representing the asynchronous operation.
@@ -79,10 +198,42 @@ export const emailVerification = async function (req, res) {
  * 
  * @throws {Object} - Returns a 500 status with an error message if an error occurs.
  */
+
+/**
+ * @openapi
+ * /api/logout:
+ *   post:
+ *     summary: Logout a user
+ *     description: Endpoint to logout a user.
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       204:
+ *         description: Logout successful.
+ *       400:
+ *         description: Bad Request. Invalid input.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Invalid input. Please check your request."
+ *       401:
+ *         description: Unauthorized. User not authenticated.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Unauthorized. Please log in."
+ *       500:
+ *         description: Internal Server Error.
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Internal Server Error"
+ */
 export const logout = async function (req, res) {
     try {
         const accesToken = req.headers.authorization
         const refreshToken = req.cookies?.refreshToken
+        if(!accesToken || refreshToken ) return res.status(401).json({ message: 'Unauthorized. Please log in.'})
         await repository.updateToken(req.user.sub)
         await repository.createBlackList(accesToken)
         res.clearCookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
