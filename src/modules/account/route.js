@@ -1,6 +1,6 @@
 import express from 'express'
 import { accountBalance, deposit, transfer, withdraw } from './controller.js'
-import { validateAccessToken } from '../../middleware/validateJwt.js'
+import {validateJwt } from '../../middleware/validateJwt.js'
 import { checkBlackList } from '../../middleware/blackList.js'
 import { schemaValidatorMiddleware } from '../../middleware/validator.js'
 import { depositSchema, transferSchema, withdrawalSchema } from './schema.js'
@@ -13,7 +13,7 @@ const account = express.Router()
  * @name transfer
  * @memberof account.post('/transfer')
  */
-account.post('/transfer', schemaValidatorMiddleware(transferSchema) , checkBlackList, validateAccessToken, transfer)
+account.post('/transfer', schemaValidatorMiddleware(transferSchema) , checkBlackList, validateJwt, transfer)
 
 /**
  * Handles deposit request.
@@ -22,7 +22,7 @@ account.post('/transfer', schemaValidatorMiddleware(transferSchema) , checkBlack
  * @name deposit
  * @memberof account.post('/deposit')
  */
-account.post('/deposit',schemaValidatorMiddleware(depositSchema) ,checkBlackList,  validateAccessToken, deposit)
+account.post('/deposit',schemaValidatorMiddleware(depositSchema), validateJwt, checkBlackList,  deposit)
 
 /**
  * Handles withdrawal request.
@@ -31,7 +31,7 @@ account.post('/deposit',schemaValidatorMiddleware(depositSchema) ,checkBlackList
  * @name withdraw
  * @memberof account.post('/withdraw')
  */
-account.post('/withdraw',schemaValidatorMiddleware(withdrawalSchema) , checkBlackList, validateAccessToken, withdraw)
+account.post('/withdraw',schemaValidatorMiddleware(withdrawalSchema) , checkBlackList, validateJwt, withdraw)
 
 /**
  * Retrieves account balance.
@@ -40,6 +40,6 @@ account.post('/withdraw',schemaValidatorMiddleware(withdrawalSchema) , checkBlac
  * @name accountBalance
  * @memberof account.get('/balance')
  */
-account.get('/balance', checkBlackList,  validateAccessToken, accountBalance)
+account.get('/balance', checkBlackList,  validateJwt, accountBalance)
 
 export default account

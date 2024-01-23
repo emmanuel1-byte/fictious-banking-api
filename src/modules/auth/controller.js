@@ -3,6 +3,8 @@ import { signInSchema, signUpSchema } from "./schema.js"
 import { generateAccesToken, generateRefreshToken } from '../../utils/generateToken.js'
 import authEvent from "../../events/auth/emitter.js"
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import { config } from "../../utils/config.js"
 /**
  * Handles user registration.
  * 
@@ -77,7 +79,6 @@ export const register = async function (req, res) {
         authEvent.emit('sendVerificationEmail', validationResult.value)
         return res.status(201).json({ message: "Registration succesfull. Check your email!" })
     } catch (err) {
-        console.error(err)
         return res.status(500).json({ message: err.message || "Internal Server Error" })
     }
 }
@@ -258,12 +259,14 @@ export const emailVerification = async function (req, res) {
 export const refreshAccessToken = async function (req, res) {
     try {
         const refreshToken =  req.cookies?.refreshToken
-        console.log(refreshToken)
+        const decode = jwt.verify(refreshToken, config.secret)
         await repository.findRefreshToken(refreshToken)
-        const newRefreshToken = await generateRefreshToken(req.id)
+        const newRefreshToken = await generateRefreshToken(decode.sub)
+        const newAccessToken = generateAccesToken(decode.sub)
         if (!newRefreshToken) return res.status(400).json({ message: 'refresh Token does not exist' })
+        res.clearCookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true })
         res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, maxAge: 2 * 24 * 60 * 60 * 1000 }) //2 days
-        return res.status(201).json({ message: 'Access token refreshed successfully'})
+        return res.status(201).json({ message: 'Access token refreshed successfully', token: newAccessToken})
     } catch (err) {
         return res.status(500).json({ message: err.message || "Interanl Server Error" })
     }
@@ -314,7 +317,7 @@ export const logout = async function (req, res) {
     try {
         const accesToken = req.headers.authorization
         const refreshToken = req.cookies?.refreshToken
-        if (!accesToken || refreshToken) return res.status(401).json({ message: 'Unauthorized. Please log in.' })
+        if (!accesToken || !refreshToken) return res.status(401).json({ message: 'Unauthorized. Please log in.' })
         await repository.updateToken(req.user.sub)
         await repository.createBlackList(accesToken)
         res.clearCookie('refreshToken', refreshToken, { httpOnly: true, secure: true })

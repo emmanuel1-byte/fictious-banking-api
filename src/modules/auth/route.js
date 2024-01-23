@@ -3,7 +3,8 @@ import { emailVerification, login, logout, refreshAccessToken, register } from '
 import { schemaValidatorMiddleware } from '../../middleware/validator.js'
 import { signInSchema, signUpSchema } from './schema.js'
 import { verifySignUp } from '../../middleware/verifySignUp.js'
-import { validateRefreshToken } from '../../middleware/validateJwt.js'
+import { checkBlackList } from '../../middleware/blackList.js'
+import { validateJwt } from '../../middleware/validateJwt.js'
 
 const authModule = express.Router()
 
@@ -32,7 +33,7 @@ authModule.post('/login', schemaValidatorMiddleware(signInSchema), login)
  * @name logout
  * @memberof account.post('/logout')
  */
-authModule.post('/logout', logout)
+authModule.post('/logout', checkBlackList, validateJwt, logout)
 
 /**
  * Handles verify request.
@@ -50,7 +51,7 @@ authModule.get('/verify/:token', emailVerification)
  * @name refreshAccessToken
  * @memberof authModule.post('/refreshToken')
  */
-authModule.post('/refreshToken', validateRefreshToken,  refreshAccessToken)
+authModule.post('/refreshToken', refreshAccessToken)
 
 
 export default authModule

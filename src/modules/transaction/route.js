@@ -1,7 +1,7 @@
 import express from 'express'
 import { listTransaction } from './controller.js'
 import { checkBlackList } from '../../middleware/blackList.js'
-import { validateAccessToken } from '../../middleware/validateJwt.js'
+import { validateJwt } from '../../middleware/validateJwt.js'
 const transaction = express.Router()
 
 /**
@@ -11,6 +11,6 @@ const transaction = express.Router()
  * @name transaction
  * @memberof account.get('/transaction')
  */
-transaction.get('/transactions', checkBlackList, validateAccessToken, listTransaction)
+transaction.get('/transactions', checkBlackList, validateJwt, listTransaction)
 
 export default transaction

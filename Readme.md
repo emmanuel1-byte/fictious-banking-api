@@ -1,19 +1,5 @@
 # Simple Fictitious Banking Application API
 
-## Table of Contents
-
-- [Description](#description)
-- [Features](#features)
-- [API Endpoints](#api-endpoints)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## Description
 
 This project is a simple fictitious banking application API built with Node.js and Express. It provides authentication, transaction, and user account management endpoints.
@@ -55,13 +41,8 @@ git clone https://github.com/your-username/simple-fictitious-banking-application
 npm start
 ```
 
-3. Run with Docker
-```bash
-docker build simple-fictious-bank -d
-docker compose up
-```
+
 ## Documentation
-- Swagger[]
-- Postman
+- [Postman]()
 
 

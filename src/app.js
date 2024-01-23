@@ -1,19 +1,25 @@
 import express from 'express'
-import { dbConnection } from './utils/database.js'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import { config } from './utils/config.js'
+import { dbConnection } from './utils/database.js'
 import auth from './modules/auth/route.js'
 import account from './modules/account/route.js'
 import transaction from './modules/transaction/route.js'
-import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from '../doc/swagger.js'
-
 
 dbConnection(config.dbUrl)
 
 const app = express()
 app.use(express.json())
-
+app.use(cookieParser())
+const options = { 
+    origin: '*',
+    methods:['POST','GET'], 
+    allowheaders:['Content-Type', 'Authorization']
+}
+app.use(cors(options))
 app.use('/api', auth, account, transaction)
 
 app.get('/', (req, res)=>{
