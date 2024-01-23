@@ -14,8 +14,8 @@ const options = {
         },
         servers: [
             {
-                url:'http://localhost:4000/',
-                description: 'development server'
+                url:'https://fictious-banking-api.onrender.com/doc/',
+                description: 'production server'
             }
         ],
         components: {
