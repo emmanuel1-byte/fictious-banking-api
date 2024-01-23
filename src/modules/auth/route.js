@@ -1,8 +1,9 @@
 import express from 'express'
-import { emailVerification, login, logout, register } from './controller.js'
+import { emailVerification, login, logout, refreshAccessToken, register } from './controller.js'
 import { schemaValidatorMiddleware } from '../../middleware/validator.js'
 import { signInSchema, signUpSchema } from './schema.js'
 import { verifySignUp } from '../../middleware/verifySignUp.js'
+import { validateRefreshToken } from '../../middleware/validateJwt.js'
 
 const authModule = express.Router()
 
@@ -41,5 +42,15 @@ authModule.post('/logout', logout)
  * @memberof authModule.get('/verify/:token')
  */
 authModule.get('/verify/:token', emailVerification)
+
+/**
+ * Handles refreshToken request.
+ *
+ * @function
+ * @name refreshAccessToken
+ * @memberof authModule.post('/refreshToken')
+ */
+authModule.post('/refreshToken', validateRefreshToken,  refreshAccessToken)
+
 
 export default authModule

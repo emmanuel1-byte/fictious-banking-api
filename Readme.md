@@ -55,5 +55,13 @@ git clone https://github.com/your-username/simple-fictitious-banking-application
 npm start
 ```
 
+3. Run with Docker
+```bash
+docker build simple-fictious-bank -d
+docker compose up
+```
+## Documentation
+- Swagger[]
+- Postman
 
 

@@ -2,7 +2,7 @@ import repository from "./repository.js"
 import { signInSchema, signUpSchema } from "./schema.js"
 import { generateAccesToken, generateRefreshToken } from '../../utils/generateToken.js'
 import authEvent from "../../events/auth/emitter.js"
-
+import bcrypt from 'bcrypt'
 /**
  * Handles user registration.
  * 
@@ -59,7 +59,7 @@ import authEvent from "../../events/auth/emitter.js"
  *         content:
  *           application/json:
  *             example:
- *               message: "Validation failed. Please check your input."
+ *               message: "Email already in use!."
  *       500:
  *         description: Internal Server Error.
  *         content:
@@ -133,10 +133,17 @@ export const register = async function (req, res) {
  *               data:
  *                 token: "your_access_token"
  *                 user: {
- *                   // user object details
+ *                     "_id":"65af0f89aebcb8f98065de3a",
+ *                      "full_name":"snr man",
+ *                      "email": "hilayemmanuel841@gmail.com",
+ *                      "phone_number": 70132592345,
+ *                      "password": "$2b$10$oJuHv0cMrRdXikOcIk7wM.7/B0K55LMMBhZttUysdG8NxXsa2O6s2",
+ *                      "createdAt": "2024-01-23T00:59:53.165Z",
+ *                      "updatedAt": "2024-01-23T00:59:53.165Z",
+ *                      "__v": 0
  *                 }
  *       400:
- *         description: Bad Request. Invalid input or incorrect username/password.
+ *         description: Bad Request.
  *         content:
  *           application/json:
  *             example:
@@ -174,17 +181,91 @@ export const login = async function (req, res) {
  *  
  * @throws {Object} - Returns a 500 status with an error message if an error occurs.
  */
+
+/**
+ * @openapi
+ * /verify/{token}:
+ *   get:
+ *     summary: Verify email using a token
+*     tags:
+ *       - Authentication
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         description: The verification token received via email
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful verification
+ *       400:
+ *         description: Expired token
+ *       404:
+ *         description: Token does not exist
+ *       500:
+ *         description: Internal Server Error
+ */
+
 export const emailVerification = async function (req, res) {
     try {
         const token = req.params.token
-        const doeExist = await repository.findToken(token)
-        if (!doeExist) return res.status(404).json({ message: 'Token does not exist' })
+        const doesExist = await repository.findToken(token)
+        if (!doesExist) return res.status(404).json({ message: 'Token does not exist' })
         const currentTime = new Date().getTime()
-        const expirationTime = new Date(doeExist.expiration_time).getTime()
+        const expirationTime = new Date(doesExist.expiration_time).getTime()
         if (currentTime < expirationTime) return res.status(400).json({ message: 'Expired token' })
         return res.status(200).json({ message: 'Verification succesfull' })
     } catch (err) {
         return res.status(500).json({ message: err.message || "Internal Server Error" })
+    }
+}
+
+/**
+ * verify email token.
+ * 
+ * @param {import('express').Request} req - The request object.
+ * @param {import('express').Response} res - The response object.
+ * @returns {Promise<void>} A Promise representing the asynchronous operation.
+ * 
+ *  
+ * @throws {Object} - Returns a 500 status with an error message if an error occurs.
+ */
+
+/**
+ * @openapi
+ * /api/refreshToken:
+ *   post:
+ *     summary: Refresh Access Token
+ *     description: Refreshes the access token using a valid refresh token.
+ *     tags:
+ *       - Token
+ *     parameters:
+ *       - in: cookie
+ *         name: refreshToken
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The refresh token stored in a cookie.
+ *     responses:
+ *       '200':
+ *         description: Successfully refreshed access token.
+ *       '400':
+ *         description: Bad request, refresh token does not exist.
+ *       '500':
+ *         description: Internal Server Error.
+ */
+export const refreshAccessToken = async function (req, res) {
+    try {
+        const refreshToken =  req.cookies?.refreshToken
+        console.log(refreshToken)
+        await repository.findRefreshToken(refreshToken)
+        const newRefreshToken = await generateRefreshToken(req.id)
+        if (!newRefreshToken) return res.status(400).json({ message: 'refresh Token does not exist' })
+        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, maxAge: 2 * 24 * 60 * 60 * 1000 }) //2 days
+        return res.status(201).json({ message: 'Access token refreshed successfully'})
+    } catch (err) {
+        return res.status(500).json({ message: err.message || "Interanl Server Error" })
     }
 }
 
@@ -233,7 +314,7 @@ export const logout = async function (req, res) {
     try {
         const accesToken = req.headers.authorization
         const refreshToken = req.cookies?.refreshToken
-        if(!accesToken || refreshToken ) return res.status(401).json({ message: 'Unauthorized. Please log in.'})
+        if (!accesToken || refreshToken) return res.status(401).json({ message: 'Unauthorized. Please log in.' })
         await repository.updateToken(req.user.sub)
         await repository.createBlackList(accesToken)
         res.clearCookie('refreshToken', refreshToken, { httpOnly: true, secure: true })
@@ -242,5 +323,4 @@ export const logout = async function (req, res) {
         return res.status(500).json({ message: err.message || "Internal Server Error" })
     }
 }
-// push changes from local branch emmanuel to remote branch development
-// git push origin emmanuel:development
+

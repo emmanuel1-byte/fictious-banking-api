@@ -1,20 +1,19 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-export function dbConnection(dbUrl) {
-    mongoose.connect(dbUrl)
+export async function dbConnection(dbUrl) {
+    try {
+        await mongoose.connect(dbUrl)
+        console.log('Database connection established successfully')
+    } catch (err) {
+        console.log('Database disconnected')
+        throw Error(err)
+    }
+}
 
-    const db = mongoose.connection
-
-    db.on('error', (err) => {
-        console.log(`Database connection failed due to ${err}`)
-    })
-
-    db.once('open', async() => {
-        console.log(`Database connection established successfully`)
-    })
-
-    db.on('disconnect', (err) => {
-        console.log(`Database disconnected ${err}`)
-    })
-
+export async function cleanUpDatabase(){
+    const collections = mongoose.connection.collections
+    for(const key in collections ){
+        const collection = collections[key]
+        await collection.deleteMany()
+    }
 }

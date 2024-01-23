@@ -6,8 +6,18 @@ const options = {
         info: {
             title: 'Simple-fictious-bank',
             version: '1.0.0',
-            description: 'API Documentation for simple-fictious-bank'
+            description: 'API Documentation for simple-fictious-bank',
+            contact: {
+                name: 'Emmanuel hilary',
+                email: 'emmanuelhilary9@gmail.com'
+              },
         },
+        servers: [
+            {
+                url:'http://localhost:4000/',
+                description: 'development server'
+            }
+        ],
         components: {
             securitySchemes: {
                 bearerAuth: {

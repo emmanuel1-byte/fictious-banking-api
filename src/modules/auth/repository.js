@@ -11,7 +11,7 @@ import { BlackList, Token, User } from "./model.js";
 async function createUser(data) {
     let session = null
     try {
-   
+
         session = await User.startSession()
         session.startTransaction()
 
@@ -19,14 +19,14 @@ async function createUser(data) {
             full_name: data.full_name, email: data.email, phone_number: data.phone_number,
             password: data.password
         })
-        newUser.save({session})
+        newUser.save({ session })
 
         const newAcccount = new Account({
             user_id: newUser._id, account_number: newUser.phone_number,
             balance: 0.00, account_type: 'savings', account_name: newUser.full_name
         })
 
-        newAcccount.save({session})
+        newAcccount.save({ session })
 
         await session.commitTransaction()
         session.endSession()
@@ -115,6 +115,21 @@ async function updateToken(user_id) {
     }
 }
 
+// /**
+//  * Finds a refresh token by its value.
+//  *
+//  * @param {string} token - The token value to search for.
+//  * @returns {Promise<Token|null>} - A promise that resolves to the found token or null if not found.
+//  * @throws {Error} - If an error occurs during the search process.
+// */
+async function findRefreshToken(token) {
+    try {
+        return await User.findOne({ refresh_token: token })
+    } catch (err) {
+        throw Error(err)
+    }
+}
+
 /**
  * Finds a blacklisted token by its value.
  *
@@ -130,17 +145,17 @@ async function findBlackListedToken(token) {
     }
 
 }
-/**
- * Repository object containing user-related database operations.
- * @type {Object}
- * @property {Function} createUser - Creates a new user.
- * @property {Function} findByEmail - Finds a user by email.
- * @property {Function} createBlackList - Creates a new blacklist entry.
- * @property {Function} createToken - Creates a new token entry.
- * @property {Function} findToken - Finds a token by value.
- * @property {Function} updateToken - Updates a user's refresh token.
- * @property {Function} findBlackListedToken - Finds a blacklisted token by value.
- */
+// /**
+//  * Repository object containing user-related database operations.
+//  * @type {Object}
+//  * @property {Function} createUser - Creates a new user.
+//  * @property {Function} findByEmail - Finds a user by email.
+//  * @property {Function} createBlackList - Creates a new blacklist entry.
+//  * @property {Function} createToken - Creates a new token entry.
+//  * @property {Function} findToken - Finds a token by value.
+//  * @property {Function} updateToken - Updates a user's refresh token.
+//  * @property {Function} findBlackListedToken - Finds a blacklisted token by value.
+//  */
 const repository = {
     createUser,
     findByEmail,
@@ -148,6 +163,7 @@ const repository = {
     createToken,
     findToken,
     updateToken,
+    findRefreshToken,
     findBlackListedToken
 }
 

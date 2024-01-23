@@ -17,6 +17,7 @@ export const generateRefreshToken = async function (user_id) {
         const payload = { sub: user_id }
         const refreshToken = jwt.sign(payload, config.secret, { expiresIn: "2d", algorithm: 'HS256' })
         await User.updateOne({ _id: user_id }, { refresh_token: refreshToken })
+        console.log(user_id)
         return refreshToken
     } catch (err) {
         throw Error(err)

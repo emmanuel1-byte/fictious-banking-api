@@ -31,11 +31,12 @@ async function makeTransfer(transferData, userId) {
         const transaction = await Transaction.create({ user_id: senderAccount.user_id, from: senderAccount.account_name, to: recieverAccount.account_name, transaction_type: 'transfer', amount: transferData.amount, remark: transferData?.remark })
         await sesssion.commitTransaction()
         sesssion.endSession()
+
         return transaction
     } catch (err) {
         await sesssion.abortTransaction()
         sesssion.endSession()
-        return 
+        throw Error(err)
     }
 }
 
@@ -118,19 +119,17 @@ async function checkBalance(userId){
     }
 }
 
-/**
- * Repository object containing functions related to account transactions.
- * @type {Object}
- * @property {Function} makeTransfer - Function to make a transfer between accounts.
- * @property {Function} makeDeposit - Function to make a deposit into an account.
- * @property {Function} makeWithdrawal - Function to make a withdrawal from an account.
- * @property {Function} checkBalance - Function to check the balance of a user's account.
- */
-const repository = {
+// /**
+//  * Repository object containing functions related to account transactions.
+//  * @type {Object}
+//  * @property {Function} makeTransfer - Function to make a transfer between accounts.
+//  * @property {Function} makeDeposit - Function to make a deposit into an account.
+//  * @property {Function} makeWithdrawal - Function to make a withdrawal from an account.
+//  * @property {Function} checkBalance - Function to check the balance of a user's account.
+//  */
+export const repository = {
     makeTransfer,
     makeDeposit,
     makeWithdrawal,
     checkBalance
 }
-
-export default repository

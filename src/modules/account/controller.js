@@ -1,6 +1,6 @@
 import { depositSchema, transferSchema, withdrawalSchema } from "./schema.js"
-import repository from "./repository.js"
 import transactionEvent from "../../events/transaction/emitter.js"
+import { repository } from './repository.js'
 
 /**
  * Transfer funds from one account to another.
@@ -49,7 +49,20 @@ import transactionEvent from "../../events/transaction/emitter.js"
  *             example:
  *               message: Transfer successful
  *               data:
- *                 transfer: { Your transfer data here }
+ *                 transfer: { 
+ *                      "user_id": "65af0f89aebcb8f98065de3a",
+ *                        "from": "snr man",
+ *                        "to": "dev_Emmanel",
+ *                        "amount": {
+ *                            "$numberDecimal": "100"
+ *                         },
+ *                         "transaction_type": "transfer",
+ *                         "_id": "65af1bb0bc9a98c0b9a7c431",
+ *                         "createdAt": "2024-01-23T01:51:44.326Z",
+ *                         "updatedAt": "2024-01-23T01:51:44.326Z",
+ *                          "__v": 0
+ * 
+ *                    }
  *       400:
  *         description: Bad Request. Invalid input.
  *         content:
@@ -74,9 +87,11 @@ export const transfer = async function (req, res) {
         transactionEvent.emit('transferEmail', makeTransfer, req.user?.email)
         return res.status(201).json({ message: "Transfer succesfull", data: { transfer: makeTransfer } })
     } catch (err) {
+        console.error(err)
         return res.status(500).json({ message: err.message || "Internal Server Error" })
     }
 }
+
 
 /**
  * Deposit funds into the user's account.
@@ -122,7 +137,18 @@ export const transfer = async function (req, res) {
  *             example:
  *               message: Deposit successful
  *               data:
- *                 deposit: { Your deposit data here }
+ *                 deposit: { 
+ *                    "user_id": "65af0f89aebcb8f98065de3a",
+ *                     "amount": {
+ *                       "$numberDecimal": "5000"
+ *                       },
+ *                        "transaction_type": "deposit",
+ *                       "_id": "65af1a36b483d1c111ccbbbb",
+ *                        "createdAt": "2024-01-23T01:45:26.072Z",
+ *                        "updatedAt": "2024-01-23T01:45:26.072Z",
+ *                       "__v": 0
+ *
+ *                  }
  *       400:
  *         description: Bad Request. Invalid input.
  *         content:
@@ -196,7 +222,17 @@ export const deposit = async function (req, res) {
  *             example:
  *               message: Withdrawal successful
  *               data:
- *                 withdrawal: { Your withdrawal data here }
+ *                 withdrawal: { 
+ *                      "user_id": "65aeb812c2cd535e78b04fe4",
+ *                      "amount": {
+ *                        "$numberDecimal": "100"
+ *                      },
+ *                      "transaction_type": "withdrawal",
+ *                      "_id": "65af1cc15a48325b9a7bda3e",
+ *                      "createdAt": "2024-01-23T01:56:17.025Z",
+ *                      "updatedAt": "2024-01-23T01:56:17.025Z",
+ *                      "__v": 0
+ *                     }
  *       400:
  *         description: Bad Request. Invalid input.
  *         content:
@@ -249,7 +285,12 @@ export const withdraw = async function (req, res) {
  *             example:
  *               message: Balance retrieved successfully
  *               data:
- *                 account: { Your account balance data here  }
+ *                 account: { 
+ *                      "_id": "65af0f89aebcb8f98065de3b",
+ *                       "balance": {
+                             "$numberDecimal": "0"
+                            }
+ *                   }
  *       500:
  *         description: Internal Server Error.
  *         content:

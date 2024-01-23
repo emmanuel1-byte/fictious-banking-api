@@ -8,6 +8,7 @@ import swaggerJSDoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from '../doc/swagger.js'
 
+
 dbConnection(config.dbUrl)
 
 const app = express()
