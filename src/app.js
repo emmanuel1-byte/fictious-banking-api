@@ -8,6 +8,7 @@ import account from './modules/account/route.js'
 import transaction from './modules/transaction/route.js'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from '../doc/swagger.js'
+import helmet from 'helmet'
 
 dbConnection(config.dbUrl)
 
@@ -20,6 +21,7 @@ const options = {
     allowheaders:['Content-Type', 'Authorization']
 }
 app.use(cors(options))
+app.use(helmet())
 app.use('/api', auth, account, transaction)
 
 app.get('/', (req, res)=>{
