@@ -189,7 +189,7 @@ export const login = async function (req, res) {
  *   get:
  *     summary: Verify email using a token
 *     tags:
- *       - Authentication
+ *       - Token
  *     parameters:
  *       - in: path
  *         name: token
