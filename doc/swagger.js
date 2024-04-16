@@ -17,15 +17,6 @@ const options = {
                 url:'https://fictious-banking-api.onrender.com'
             }
         ],
-        components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
-                },
-            },
-        },
     },
     apis: ['./src/modules/account/controller.js', './src/modules/auth/controller.js', './src/modules/transaction/controller.js']
 }
