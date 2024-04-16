@@ -17,6 +17,7 @@ const options = {
                 url:'https://fictious-banking-api.onrender.com'
             }
         ],
+
     },
     apis: ['./src/modules/account/controller.js', './src/modules/auth/controller.js', './src/modules/transaction/controller.js']
 }
