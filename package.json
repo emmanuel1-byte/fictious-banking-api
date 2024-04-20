@@ -5,23 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "set NODE_ENV=production&&node src/index.js ",
-    "dev": "set NODE_ENV=development&&nodemon src/index.js",
-    "test": "jest"
-  },
-  "jest": {
-    "testTimeout": 15000,
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    }
+    "dev": "set NODE_ENV=development&&nodemon src/index.js"
   },
   "type": "module",
   "author": "Emmanuel Hilary",
   "license": "MIT",
   "dependencies": {
-    "@babel/core": "^7.23.7",
-    "@babel/preset-env": "^7.23.8",
-    "@babel/register": "^7.23.7",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -35,9 +24,5 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "supertest": "^6.3.4"
   }
 }
